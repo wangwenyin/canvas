@@ -1,0 +1,52 @@
+ 
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			body{
+				background-color: gray;
+			}
+			canvas{
+				background-color: white;
+				position: absolute;
+				left: 0;
+				top: 0;
+				right: 0;
+				bottom: 0;
+				margin: auto;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas width="600" height="400"></canvas>
+	</body>
+	<script type="text/javascript">
+		var oc = document.querySelector('canvas')
+		if(oc.getContext){
+			var ctx = oc.getContext('2d')
+			
+			oc.onmousedown = function(ev){
+				ev = ev || event
+				//每次绘制一个图形之前
+				ctx.beginPath()
+				ctx.moveTo(ev.clientX-this.offsetLeft,ev.clientY-this.offsetTop)
+				
+				//后面两个需绑定在document上
+				document.onmousemove = function(ev){
+				ev = ev || event
+				ctx.lineTo(ev.clientX-oc.offsetLeft,ev.clientY-oc.offsetTop)
+				ctx.stroke()
+				}
+				document.onmouseup = function(){
+					document.onmousedown = document.onmousemove = null
+				}
+				
+				return false//？
+			}
+			
+		}
+	</script>
+</html>
+

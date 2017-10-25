@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+			body{
+				background: gray;
+			}
+			canvas{
+				background: white;
+				position: absolute;
+				left: 0;
+				right: 0;
+				top: 0;
+				bottom: 0;
+				margin: auto;
+			}
+			 
+		</style>
+	</head>
+	<body>
+		<canvas width="400" height="400"></canvas>
+	</body>
+	<script type="text/javascript">
+		window.onload = function(){
+			var oc = document.querySelector('canvas')
+			if(oc.getContext){
+				var ctx = oc.getContext('2d')
+				
+				ctx.fillRect(100,100,100,100)
+				//获取imageData对象
+				var imgData = ctx.getImageData(100,100,100,100)
+				//设置4排4列的颜色
+				for(var i=0;i<imgData.width;i++){
+//					console.log(111)
+					setPxInfo(imgData,i,3,[0,0,0,0])
+				}
+				for(var i=0;i<imgData.height;i++){
+					setPxInfo(imgData,3,i,[0,0,0,0])
+				}
+				//写入像素数据
+				ctx.putImageData(imgData,200,200)
+				console.log(imgData)
+				
+				//获取指定区域内 偏移量为x y的像素点的信息
+				function getPxInfo(imgData,x,y){
+					var color = []
+					var data = imgData.data
+					var w = imgData.width
+					
+					color[0] = data[(y*w+x)*4]//r
+					color[1] = data[(y*w+x)*4+1]//g
+					color[2] = data[(y*w+x)*4+2]//b
+					color[3] = data[(y*w+x)*4+3]//a
+					
+					return color
+				}
+				var rgba = getPxInfo(imgData,3,4)
+//				console.log(rgba)
+				
+				//设置指定区域内 偏移量为x y的像素点的信息
+				function setPxInfo(imgData,x,y,color){
+					 
+					var data = imgData.data
+					var w = imgData.width
+//					var h = imgData.height
+					
+					data[(y*w + x)*4] = color[0] //r
+					data[(y*w + x)*4+1]= color[1]//g
+					data[(y*w + x)*4+2]= color[2]//b
+				    data[(y*w + x)*4+3]= color[3]//a
+				}
+				
+			}
+		}
+	</script>
+</html>

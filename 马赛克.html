@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+			body{
+				background: pink;
+			}
+			canvas{
+				background: white;
+				position: absolute;
+				left: 0;
+				right: 0;
+				top: 0;
+				bottom: 0;
+				margin: auto;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas></canvas>
+	</body>
+	<script type="text/javascript">
+		window.onload = function(){
+			var oc = document.querySelector('canvas')
+			if(oc.getContext){
+				var ctx = oc.getContext('2d')
+				var img = new Image()
+				img.src = './img/tg.png'
+				img.onload = function(){
+					draw(this)
+				}
+				
+				function draw(img){
+					oc.width = img.width*2
+					oc.height = img.height
+					ctx.drawImage(img,0,0)
+					
+					var oldImgData = ctx.getImageData(0,0,img.width,img.height)
+					var newImgData = ctx.createImageData(img.width,img.height)
+					//定义马赛克矩形的尺寸
+					var size = 5
+					//得出需要多少马赛克矩形
+					var w = img.width/size
+					var h = img.height/size
+					
+					for(var i=0;i<w;i++){
+						for(var j=0;j<h;j++){
+							//随机从马赛克矩形中挑出一个像素点作为参照
+							/*分析：
+								(0,0)  (0,0) -25个像素点- (4,4)   [0,4][0,4]       （1,0）  (5,0) -25个像素点-(9,4)
+								(0,1)  (0,5) -25个像素点- (4,9)	 [0,4][5,9]			(1,1)     (5,5) -25个像素点-(9,9)
+								
+								Math.random() : [0,1)
+								Math.random()*size:[0,5)  
+								Math.floor(Math.random()*size)：[0,4]
+							*/
+							var color = getPxInfo(oldImgData,Math.floor(i*size+Math.random()*size),Math.floor(j*size+Math.random()*size))
+							//将马赛克矩形中的所有像素点的信息都调成一样的
+							for(var a=0;a<size;a++){
+								//先执行的内层循环
+								for(var b=0;b<size;b++){
+									setPxInfo(newImgData,a+i*size,b+j*size,color)
+								}
+							}
+						}
+					}
+					
+					//将生成的马赛克图片写入指定位置
+					ctx.putImageData(newImgData,img.width,0)
+					
+					//获取指定区域内 偏移量为x y的像素点的信息
+					function getPxInfo(imgData,x,y){
+						var color = []
+						var data = imgData.data
+						var w = imgData.width
+						
+						color[0] = data[(y*w+x)*4]//r
+						color[1] = data[(y*w+x)*4+1]//g
+						color[2] = data[(y*w+x)*4+2]//b
+						color[3] = data[(y*w+x)*4+3]//a
+						
+						return color
+					}
+					
+					//设置指定区域内 偏移量为x y的像素点的信息
+					function setPxInfo(imgData,x,y,color){
+						 
+						var data = imgData.data
+						var w = imgData.width
+						
+						data[(y*w + x)*4] = color[0] //r
+						data[(y*w + x)*4+1]= color[1]//g
+						data[(y*w + x)*4+2]= color[2]//b
+					    data[(y*w + x)*4+3]= color[3]//a
+					}
+				
+				}
+			}
+		}
+	</script>
+</html>

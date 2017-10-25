@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"/>
+		<title></title>
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+			html,body{
+				height: 100%;
+				overflow: hidden;
+			}
+			#wrap{
+				height: 100%;
+				overflow: hidden;
+			}
+			#wrap>.list{
+				height: 100%;
+			}
+			#wrap>.list li{
+				height: 100%;
+				background: url(./img/b.png) no-repeat;
+				background-size: 100% 100%;/*参照li*/
+			}
+			#wrap canvas{
+				position: absolute;
+				left: 0;
+				top: 0;
+				transition: .5s opacity;
+			}
+			
+		</style>
+	</head>
+	<body>
+		<div id="wrap">
+			<canvas></canvas>
+			<ul class="list">
+				<li></li>
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript">
+		document.addEventListener('touchstart',function(ev){
+			ev = ev||event
+			ev.preventDefault()
+		});//这里必须加分号
+		
+		//rem适配
+		(function(){
+			var width = document.documentElement.clientWidth/16
+			var styleNode = document.createElement('style')
+			styleNode.innerHTML = 'html{font-size:' + width + 'px!important;}'
+			document.body.appendChild(styleNode)
+		})()
+		
+		window.onload = function(){
+			var oc = document.querySelector('#wrap canvas')
+			if(oc.getContext){
+				oc.width = document.documentElement.clientWidth
+				oc.height = document.documentElement.clientHeight
+				
+				var ctx = oc.getContext('2d')
+				var img = new Image()
+				img.src = './img/a.png'
+				img.onload = function(){
+					draw(this)
+				}
+				
+				function draw(img){
+					ctx.drawImage(img,0,0,oc.width,oc.height)
+					
+					oc.addEventListener('touchstart',function(ev){
+						ev = ev||event
+						
+						var touchC = ev.changedTouches[0]
+						var x = touchC.clientX
+						var y = touchC.clientY
+						
+						//公共样式,下面touchmove里需要用（不需要save和restore了）
+						ctx.lineWidth = 40
+						//帽子的半径是线宽的一半
+						ctx.lineCap = 'round'
+						ctx.lineJoin = 'round'
+						ctx.globalCompositeOperation = 'destination-out'
+						
+						ctx.beginPath()
+						//画圆：效果不好，应该划线，并用lineCap
+//						ctx.arc(x,y,40,0,2*Math.PI)
+//						ctx.fill()
+						ctx.moveTo(x,y)
+						ctx.lineTo(x+1,y+1)
+						ctx.stroke()
+					})
+					
+					oc.addEventListener('touchmove',function(ev){
+						ev = ev||event
+						
+						var touchC = ev.changedTouches[0]
+						var x = touchC.clientX
+						var y = touchC.clientY
+						
+						//接着前面划线(不能要beginPath())
+						//
+						ctx.lineTo(x,y)
+						ctx.stroke()
+					})
+					
+					//用户体验优化(一半时，自动显示完整背景)
+					oc.addEventListener('touchend',function(ev){
+						ev = ev||event
+						
+						var imgData = ctx.getImageData(0,0,oc.clientWidth,oc.clientHeight)
+						//取得区域内所有像素点的个数
+						var allPx = imgData.width*imgData.height
+						var flag = 0
+						for (var i=0;i<allPx;i++) {
+							//取得透明度为0的像素点的个数
+							if(imgData.data[i*4+3] == 0){
+								flag++
+							}
+						}
+						if(flag>allPx/2){
+							oc.style.opacity = 0
+						}
+						//过渡完后从dom中移除canvas元素
+						oc.addEventListener('transitionend',function(){
+							this.remove()
+						})
+					})
+				}
+			}
+		}
+	</script>
+</html>

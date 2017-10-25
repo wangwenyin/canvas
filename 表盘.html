@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+			body{
+				background: gray;
+			}
+			canvas{
+				background: white;
+				position: absolute;
+				left: 0;
+				right: 0;
+				top: 0;
+				bottom: 0;
+				margin: auto;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas width="400" height="400"></canvas>
+	</body>
+	<script type="text/javascript">
+		var oc = document.querySelector('canvas')
+		if(oc.getContext){
+			var ctx = oc.getContext('2d')
+			
+			setInterval(function(){
+				ctx.clearRect(0,0,oc.width,oc.height)
+				//每绘制一次图形，都放在ctx.save()，ctx.restore()。中
+				ctx.save()
+				//改变canvas原点(必须先改变原点，再旋转)
+				ctx.translate(200,200)
+				//由于canvas中画圆与旋转所参照的是正常坐标系的x轴（默认顺时针）
+				//而此处，需要其参照y轴开始,故须将坐标系旋转90度
+				ctx.rotate(-90*Math.PI/180)
+				
+				//初始化样式
+				ctx.lineWidth = 8;
+				ctx.strokeStyle = 'black'
+			  	ctx.lineCap = "round";
+			  	
+			  	//外部圆圈 
+			  	ctx.save()
+			  	ctx.strokeStyle = '#325FA2'
+			  	ctx.lineWidth = 14
+			  	ctx.beginPath()
+			  	//画圆(有默认的起始点和方向，不需要moveTo)
+			  	ctx.arc(0,0,140,0,360*Math.PI/180)
+			  	//开始绘制
+			  	ctx.stroke()
+			  	ctx.restore()
+			  	
+			  	//时针刻度
+			  	ctx.save()
+			  	for(var i=0;i<12;i++){
+			  		ctx.beginPath()
+				  	ctx.rotate(30*Math.PI/180)
+					ctx.moveTo(100,0)
+					ctx.lineTo(120,0)
+					ctx.stroke()
+			  	}
+			  	ctx.restore()
+			  	
+			  	//分针刻度
+			  	ctx.save()
+			  	ctx.lineWidth = 4
+			  	
+			  	for (var i=0;i<60;i++) {
+			  		//每次绘制之前都要清理之前的路径
+			  		ctx.beginPath()
+			  		ctx.rotate(6*Math.PI/180)
+				  	ctx.moveTo(117,0)
+				  	ctx.lineTo(120,0)
+				  	ctx.stroke()
+			  	}
+			  	ctx.restore()
+			  	
+			  	var s = new Date().getSeconds()
+			  	var m = new Date().getMinutes()+s/60
+			  	var h = new Date().getHours()+m/60
+			  	h = h>12 ? h-12 : h
+			  	
+			  	
+			  	//时针
+			  	ctx.save()
+			  	ctx.lineWidth = 14
+			  	ctx.beginPath()
+			  	ctx.rotate(h*30*Math.PI/180)
+			  	ctx.moveTo(-20,0)
+			  	ctx.lineTo(80,0)
+			  	ctx.stroke()
+			  	ctx.restore()
+			  	
+			  	//分针
+			  	ctx.save()
+			  	ctx.lineWidth = 10
+			  	ctx.beginPath()
+			  	ctx.rotate(m*6*Math.PI/180)
+			  	ctx.moveTo(-28,0)
+			  	ctx.lineTo(112,0)
+			  	ctx.stroke()
+			  	ctx.restore()
+			  	
+			  	//秒针
+			  	ctx.save()
+			  	ctx.lineWidth = 6
+			  	ctx.strokeStyle = '#D40000'
+			  	ctx.fillStyle = '#D40000'
+			  	ctx.beginPath()
+			  	ctx.rotate(s*6*Math.PI/180)
+			  	ctx.moveTo(-30,0)
+			  	ctx.lineTo(83,0)
+			  	ctx.stroke()
+			  	//秒针头
+			  	ctx.beginPath()
+			  	ctx.arc(93,0,10,0,360*Math.PI/180)
+			  	ctx.stroke()
+			  	//小圆盘
+			  	ctx.beginPath()
+			  	ctx.arc(0,0,10,0,360*Math.PI/180)
+			  	ctx.fill()
+			  	
+			  	ctx.restore()
+			  	
+			  	
+				ctx.restore()
+			},1000)
+		}
+	</script>
+</html>
